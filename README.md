@@ -1,2 +1,119 @@
 # Data-Warehouse-Project
-Sparkify, a growing music streaming startup, wants to move their data to the cloud. As a data engineer, I built an ETL pipeline to extract user activity and song data from S3, stage it in Redshift, and transform it into dimensional tables for analytics.
+Sparkify, a rapidly growing music streaming startup, has expanded its user base and song database. As part of their growth, they are migrating their data processes and storage to the cloud. Their data, including user activity logs and song metadata, is stored in S3. The goal of this project is to build an ETL (Extract, Transform, Load) pipeline that extracts this data from S3, stages it in AWS Redshift, and transforms it into dimensional tables for their analytics team to derive insights.
+
+The ETL pipeline is designed to:
+
+1. Extract data from JSON logs on user activity and song metadata stored in S3.
+2.Transform the data into a structured format that can be loaded into Redshift.
+3.Load the transformed data into Redshift for analytics.
+This project will help Sparkify's team analyze user behavior, song preferences, and other key metrics to drive their business decisions.
+
+#### Prerequisites
+###### Before running the Python scripts, make sure you have the following setup:
+1.AWS Account with access to S3 and Redshift.
+2.Python 3.x installed.
+3.PostgreSQL/Redshift Database credentials.
+4.Required Python Libraries (listed in requirements.txt).
+5.AWS CLI installed and configured if running locally.
+
+
+##### How to Run the Python Scripts
+1. Set up the environment
+Ensure you have all the required libraries installed by running:
+
+pip install -r requirements.txt
+
+2. Update the dwh.cfg  file
+The dwh.cfg file should contain your AWS and Redshift credentials. Open dwh.cfg and replace the placeholder values with your own credentials:
+
+#### dwh.cfg 
+
+##### AWS Credentials
+AWS_ACCESS_KEY_ID = 'your_aws_access_key_id'
+AWS_SECRET_ACCESS_KEY = 'your_aws_secret_access_key'
+
+##### Redshift Credentials
+HOST = 'your_redshift_cluster_endpoint'
+DB_NAME = 'your_db_name'
+DB_USER = 'your_db_user'
+DB_PASSWORD = 'your_db_password'
+DB_PORT = 5439  # default Redshift port
+
+3. Run the ETL script
+To run the ETL process, execute the etl.py script:
+python etl.py
+This script will:
+-Extract data from S3 (logs and song metadata).
+-Transform the data to match the schema required by Redshift.
+-Load the data into Redshift tables.
+
+##### Explanation of Files
+-etl.py
+This is the main Python script that handles the ETL process. It extracts data from the S3 buckets, transforms it into the appropriate format, and loads it into Redshift. It connects to the Redshift cluster and uses the SQL queries from sql_queries.py to stage and transform the data.
+
+Functions in etl.py include:
+--extract_data_from_s3(): Extracts raw data from S3 log files and song metadata.
+--transform_data(): Transforms the extracted data into a structured format suitable for loading into Redshift.
+-load_data_to_redshift(): Loads the transformed data into the appropriate tables in Redshift.
+--full_table_update(): Optionally truncates and reloads tables to update data.
+
+-sql_queries.py
+This file contains the SQL queries used in the ETL pipeline, such as:
+Creating staging and fact tables (e.g., staging_events, songplays, etc.).
+Inserting data into these tables using INSERT INTO queries.
+Selecting and transforming data using SQL to prepare it for analysis.
+
+-dwh.cfg
+This file contains the configuration for AWS and Redshift credentials:
+--AWS access keys to interact with S3.
+--Redshift connection details to load data into the database.
+
+-create_table.py
+is where I created fact and dimension tables for the star schema in Redshift.
+
+-requirements.txt
+This file lists all the required Python dependencies, such as:
+psycopg2
+boto3
+pandas
+sqlalchemy
+
+-data_quality_check.py: This script runs data quality checks to ensure the ETL process has correctly loaded data into the Redshift tables. It checks for record counts, non-null constraints, and consistency across the tables.
+
+Key checks include:
+
+Checking if the tables have the expected number of records.
+Ensuring that there are no missing or null values in essential columns.
+How to run:
+Run data_quality_check.py after executing the ETL process to ensure data quality.
+
+-validation_check.py: This script validates the transformed data after it has been loaded into Redshift. It checks the results of key business questions, such as:
+Counting records in critical tables (users, songs, artists, etc.).
+How to run:
+Run validation_check.py to validate that the ETL pipeline has correctly transformed and loaded data.
+
+### Data Flow
+#### Extract:
+
+Raw data from S3 logs (log_data), which contains user activity on the app.
+Song metadata from S3 (song_data), which contains JSON files describing songs in the app.
+#### Transform:
+
+Extracted logs and song metadata are transformed to fit the schema required by Redshift tables.
+##### The transformation process involves:
+-Parsing JSON data from logs and song metadata.
+-Joining tables to create relationships, such as linking user activity to specific songs.
+-Filtering and cleaning the data.
+#### Load:
+
+The transformed data is loaded into Redshift tables, including:
+a.songplays: Facts about each song playback event.
+b.users: Information about each user.
+c.songs: Details of each song.
+d.artists: Artist details.
+e.time: Time-based dimensions for user activity (e.g., hour, day, week).
+### Troubleshooting
+-Relation does not exist: Ensure the table is created and exists in the schema you are querying.
+-Permission issues: Check IAM role permissions to ensure Redshift can access the S3 buckets.
+-Data type mismatches: Double-check the data types in your Redshift schema to ensure they match the data from the source files.
+
