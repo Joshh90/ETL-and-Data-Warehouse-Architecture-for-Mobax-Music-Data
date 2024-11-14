@@ -1,4 +1,4 @@
-# Data-Warehouse-Project
+# ETL and Data Warehouse Architecture for Sparkify’s Music Data
 Sparkify, a rapidly growing music streaming startup, has expanded its user base and song database. As part of their growth, they are migrating their data processes and storage to the cloud. Their data, including user activity logs and song metadata, is stored in S3. The goal of this project is to build an ETL (Extract, Transform, Load) pipeline that extracts this data from S3, stages it in AWS Redshift, and transforms it into dimensional tables for their analytics team to derive insights.
 
 The ETL pipeline is designed to:
