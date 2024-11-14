@@ -108,8 +108,8 @@ Run validation_check.py to validate that the ETL pipeline has correctly transfor
 ### Data Flow
 #### Extract:
 
-Raw data from S3 logs (log_data), which contains user activity on the app.
-Song metadata from S3 (song_data), which contains JSON files describing songs in the app.
+* Raw data from S3 logs (log_data), which contains user activity on the app.
+* Song metadata from S3 (song_data), which contains JSON files describing songs in the app.
 #### Transform:
 
 Extracted logs and song metadata are transformed to fit the schema required by Redshift tables.
