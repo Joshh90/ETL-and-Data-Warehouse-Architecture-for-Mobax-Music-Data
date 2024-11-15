@@ -11,6 +11,9 @@ Sparkify, a rapidly growing music streaming startup, has expanded its user base 
 #### 3.Load the transformed data into Redshift for analytics.
 This project will help Sparkify's team analyze user behavior, song preferences, and other key metrics to drive their business decisions.
 
+### Project ER Model
+![Model Diagram]
+
 #### Prerequisites
 ###### Before running the Python scripts, make sure you have the following setup:
 1. AWS Account with access to S3 and Redshift.
