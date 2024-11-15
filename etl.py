@@ -1,76 +1,55 @@
 import configparser
 import psycopg2
-from sql_queries import create_table_queries, drop_table_queries, copy_table_queries, insert_table_queries
+from sql_queries import copy_table_queries, insert_table_queries
 
-# CONFIGURATION
-config = configparser.ConfigParser()
-config.read('dwh.cfg')
-
-# DATABASE CONNECTION
-def create_connection():
-    return psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
-
-def create_cursor(conn):
-    return conn.cursor()
-
-def drop_tables(cur, conn):
-    for query in drop_table_queries:
-        print(f"Executing query: {query}")
-        cur.execute(query)
-        conn.commit()
-
-def create_tables(cur, conn):
-    for query in create_table_queries:
-        print(f"Executing query: {query}")
-        cur.execute(query)
-        conn.commit()
 
 def copy_data(cur, conn):
+    """
+    Loads data from S3 into staging tables in Redshift using the COPY commands.
+    """
     for query in copy_table_queries:
-        print(f"Executing query: {query}")
+        print(f"Executing COPY command:\n\n{query}\n")
         cur.execute(query)
         conn.commit()
+
 
 def insert_data(cur, conn):
+    """
+    Inserts data from staging tables into the analytical tables.
+    """
     for query in insert_table_queries:
-        print(f"Executing query: {query}")
+        print(f"Executing query:\n\n{query}\n")
         cur.execute(query)
         conn.commit()
 
-def full_table_update(cur, conn):
-    # Step 1: Truncate all tables before inserting new data
-    truncate_queries = [
-        "TRUNCATE TABLE songplays;",
-        "TRUNCATE TABLE users;",
-        "TRUNCATE TABLE songs;",
-        "TRUNCATE TABLE artists;",
-        "TRUNCATE TABLE time;"
-    ]
-    for query in truncate_queries:
-        print(f"Executing query: {query}")
-        cur.execute(query)
-        conn.commit()
-
-    # Step 2: Insert updated data
-    insert_data(cur, conn)
 
 def main():
-    # Establish the database connection and cursor
-    conn = create_connection()
-    cur = create_cursor(conn)
-    
-    # Drop and create tables
-    drop_tables(cur, conn)
-    create_tables(cur, conn)
-    
-    # Load data into staging tables
+    """
+    Establishes a connection to the Redshift cluster, runs the ETL process to 
+    load data from S3 to staging tables, and then populates the analytics tables.
+    """
+    config = configparser.ConfigParser()
+    config.read('dwh.cfg')
+
+    # Connect to Redshift
+    conn = psycopg2.connect(
+        host=config['CLUSTER']['HOST'],
+        dbname=config['CLUSTER']['DB_NAME'],
+        user=config['CLUSTER']['DB_USER'],
+        password=config['CLUSTER']['DB_PASSWORD'],
+        port=config['CLUSTER']['DB_PORT']
+    )
+    cur = conn.cursor()
+
+    print("Starting data loading from S3 to Redshift staging tables...")
     copy_data(cur, conn)
     
-    # Perform the full table update (truncate and reload data)
-    full_table_update(cur, conn)
-    
-    # Close the connection
+    print("Starting data insertion into final analytical tables...")
+    insert_data(cur, conn)
+
     conn.close()
+    print("ETL process completed and connection closed.")
+
 
 if __name__ == "__main__":
     main()
