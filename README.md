@@ -12,7 +12,7 @@ Sparkify, a rapidly growing music streaming startup, has expanded its user base 
 This project will help Sparkify's team analyze user behavior, song preferences, and other key metrics to drive their business decisions.
 
 ### Project ER Model
-![Model Diagram]
+![Model Diagram](https://github.com/Joshh90/ETL-and-Data-Warehouse-Architecture-for-Sparkify-Music-Data/blob/main/ETL%20%20%26%20DATAWAREHOUSE%20ERD.drawio.png)
 
 #### Prerequisites
 ###### Before running the Python scripts, make sure you have the following setup:
