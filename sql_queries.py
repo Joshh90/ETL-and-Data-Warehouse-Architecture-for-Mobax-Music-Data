@@ -1,5 +1,16 @@
-# DROP TABLES
+"""
+This script contains SQL queries for creating, dropping, copying, and inserting data 
+into tables for the Sparkify data warehouse. The ETL pipeline uses these queries to 
+move and transform data from S3 to Redshift.
+"""
 
+import configparser
+
+# Load configuration
+config = configparser.ConfigParser()
+config.read('dwh.cfg')
+
+# DROP TABLES
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events;"
 staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs;"
 songplays_table_drop = "DROP TABLE IF EXISTS songplays;"
@@ -9,7 +20,6 @@ artists_table_drop = "DROP TABLE IF EXISTS artists;"
 time_table_drop = "DROP TABLE IF EXISTS time;"
 
 # CREATE TABLES
-
 staging_events_table_create = ("""
 CREATE TABLE IF NOT EXISTS staging_events (
     artist VARCHAR,
@@ -104,32 +114,41 @@ CREATE TABLE IF NOT EXISTS songplays (
 );
 """)
 
-# COPY DATA
-
+# COPY DATA INTO STAGING TABLES
 staging_events_copy = ("""
-COPY staging_events 
-FROM 's3://udacity-dend/log_data'
-CREDENTIALS 'aws_iam_role=arn:aws:iam::284347131770:role/dwhRole'
-REGION 'us-west-2'
-JSON 's3://udacity-dend/log_json_path.json';
-""")
+COPY staging_events
+FROM '{}'
+iam_role '{}'
+region '{}'
+FORMAT AS JSON '{}';
+""").format(
+    config['S3']['LOG_DATA'], 
+    config['IAM_ROLE']['ARN'], 
+    config['S3']['REGION'], 
+    config['S3']['LOG_JSONPATH']
+)
 
 staging_songs_copy = ("""
 COPY staging_songs
-FROM 's3://udacity-dend/song_data/A/A/A'
-CREDENTIALS 'aws_iam_role=arn:aws:iam::284347131770:role/dwhRole'
-REGION 'us-west-2'
-JSON 'auto'
+FROM '{}'
+iam_role '{}'
+region '{}'
+FORMAT AS JSON 'auto'
 TRUNCATECOLUMNS
 BLANKSASNULL
 EMPTYASNULL;
-""")
+""").format(
+    config['S3']['SONG_DATA'], 
+    config['IAM_ROLE']['ARN'], 
+    config['S3']['REGION']
+)
 
-# INSERT DATA
 
+# INSERT DATA INTO FINAL TABLES
 songplays_table_insert = ("""
-INSERT INTO songplays (user_id, level, song_id, artist_id, session_id, location, user_agent)
+INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
 SELECT 
+    TIMESTAMP 'epoch' + (e.ts / 1000) * INTERVAL '1 second' AS start_time,
     e.userId AS user_id, 
     e.level, 
     s.song_id, 
@@ -147,41 +166,41 @@ WHERE e.page = 'NextSong';
 
 users_table_insert = ("""
 INSERT INTO users (user_id, first_name, last_name, gender, level)
-SELECT DISTINCT
-    e.userId AS user_id,
-    e.firstName AS first_name,
-    e.lastName AS last_name,
-    e.gender,
+SELECT DISTINCT 
+    e.userId AS user_id, 
+    e.firstName AS first_name, 
+    e.lastName AS last_name, 
+    e.gender, 
     e.level
 FROM staging_events e
-WHERE e.userId IS NOT NULL;
+WHERE e.page = 'NextSong' AND e.userId IS NOT NULL;
 """)
 
 songs_table_insert = ("""
 INSERT INTO songs (song_id, title, artist_id, year, duration)
-SELECT DISTINCT
-    s.song_id,
-    s.title,
-    s.artist_id,
-    s.year,
+SELECT DISTINCT 
+    s.song_id, 
+    s.title, 
+    s.artist_id, 
+    s.year, 
     s.duration
 FROM staging_songs s;
 """)
 
 artists_table_insert = ("""
 INSERT INTO artists (artist_id, name, location, latitude, longitude)
-SELECT DISTINCT
-    s.artist_id,
-    s.artist_name AS name,
-    s.artist_location AS location,
-    s.artist_latitude AS latitude,
+SELECT DISTINCT 
+    s.artist_id, 
+    s.artist_name AS name, 
+    s.artist_location AS location, 
+    s.artist_latitude AS latitude, 
     s.artist_longitude AS longitude
 FROM staging_songs s;
 """)
 
 time_table_insert = ("""
 INSERT INTO time (start_time, hour, day, week, month, year, weekday)
-SELECT DISTINCT
+SELECT DISTINCT 
     TIMESTAMP 'epoch' + (e.ts / 1000) * INTERVAL '1 second' AS start_time,
     EXTRACT(hour FROM start_time) AS hour,
     EXTRACT(day FROM start_time) AS day,
@@ -189,15 +208,40 @@ SELECT DISTINCT
     EXTRACT(month FROM start_time) AS month,
     EXTRACT(year FROM start_time) AS year,
     EXTRACT(weekday FROM start_time) AS weekday
-FROM staging_events e;
+FROM staging_events e
+WHERE e.page = 'NextSong';
 """)
 
-# LIST OF QUERIES
+# LIST OF QUERY EXECUTIONS
+create_table_queries = [
+    staging_events_table_create, 
+    staging_songs_table_create, 
+    users_table_create, 
+    songs_table_create, 
+    artists_table_create, 
+    time_table_create, 
+    songplays_table_create
+]
 
-create_table_queries = [staging_events_table_create, staging_songs_table_create, users_table_create, 
-                        songs_table_create, artists_table_create, time_table_create, songplays_table_create]
-drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplays_table_drop, 
-                      users_table_drop, songs_table_drop, artists_table_drop, time_table_drop]
-copy_table_queries = [staging_events_copy, staging_songs_copy]
-insert_table_queries = [songplays_table_insert, users_table_insert, songs_table_insert, 
-                        artists_table_insert, time_table_insert]
+drop_table_queries = [
+    staging_events_table_drop, 
+    staging_songs_table_drop, 
+    songplays_table_drop, 
+    users_table_drop, 
+    songs_table_drop, 
+    artists_table_drop, 
+    time_table_drop
+]
+
+copy_table_queries = [
+    staging_events_copy, 
+    staging_songs_copy
+]
+
+insert_table_queries = [
+    songplays_table_insert, 
+    users_table_insert, 
+    songs_table_insert, 
+    artists_table_insert, 
+    time_table_insert
+]
