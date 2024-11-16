@@ -1,6 +1,6 @@
-# ETL and Data Warehouse Architecture for Sparkify’s Music Data
+# ETL and Data Warehouse Architecture for Sonofy’s Music Data
 ## Description:
-Mobax, a rapidly growing music streaming startup, has expanded its user base and song database. As part of their growth, they are migrating their data processes and storage to the cloud. Their data, including user activity logs and song metadata, is stored in S3. The goal of this project is to build an ETL (Extract, Transform, Load) pipeline that extracts this data from S3, stages it in AWS Redshift, and transforms it into dimensional tables for their analytics team to derive insights.
+Sonofy, a rapidly growing music streaming startup, has expanded its user base and song database. As part of their growth, they are migrating their data processes and storage to the cloud. Their data, including user activity logs and song metadata, is stored in S3. The goal of this project is to build an ETL (Extract, Transform, Load) pipeline that extracts this data from S3, stages it in AWS Redshift, and transforms it into dimensional tables for their analytics team to derive insights.
 
 ### Diagram
 ![Diagram](https://github.com/Joshh90/Sonofy-ETL-And-DataWarehouse-Architecture-Project/blob/main/datawarehouse.jpeg)
@@ -9,10 +9,10 @@ Mobax, a rapidly growing music streaming startup, has expanded its user base and
 #### 1.Extract data from JSON logs on user activity and song metadata stored in S3.
 #### 2.Transform the data into a structured format that can be loaded into Redshift.
 #### 3.Load the transformed data into Redshift for analytics.
-This project will help Mobax's team analyze user behavior, song preferences, and other key metrics to drive their business decisions.
+This project will help Sonofy's team analyze user behavior, song preferences, and other key metrics to drive their business decisions.
 
 ### Project ER Model
-![Model Diagram](https://github.com/Joshh90/ETL-and-Data-Warehouse-Architecture-for-Sparkify-Music-Data/blob/main/ETL%20%20%26%20DATAWAREHOUSE%20ERD.drawio.png)
+![Model Diagram](https://github.com/Joshh90/Sonofy-ETL-And-DataWarehouse-Architecture-Project/blob/main/ETL%20%20%26%20DATAWAREHOUSE%20ERD.drawio.png)
 
 #### Prerequisites
 ###### Before running the Python scripts, make sure you have the following setup:
