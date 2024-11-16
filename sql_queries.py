@@ -1,6 +1,6 @@
 """
 This script contains SQL queries for creating, dropping, copying, and inserting data 
-into tables for the Sparkify data warehouse. The ETL pipeline uses these queries to 
+into tables for the Sonofy data warehouse. The ETL pipeline uses these queries to 
 move and transform data from S3 to Redshift.
 """
 
