@@ -63,15 +63,15 @@ DB_PORT = 5439  # default Redshift port
 ```
 
 3. ###### Run the ETL script:
-To run the ETL process, execute the **etl.py** script:
-**python etl.py**
-This script will:
+To run the ETL process, execute the **etl.py** script.
+
+**Etl.py** will:
 * Extract data from S3 (logs and song metadata).
 * Transform the data to match the schema required by Redshift.
 * Load the data into Redshift tables.
 
 #### Explanation of Files
-**etl.py**
+**etl.py:**
 This is the main Python script that handles the ETL process. It extracts data from the S3 buckets, transforms it into the appropriate format, and loads it into Redshift. It connects to the Redshift cluster and uses the SQL queries from sql_queries.py to stage and transform the data.
 
 Functions in etl.py include:
@@ -80,21 +80,21 @@ Functions in etl.py include:
 * Load_data_to_redshift( ): Loads the transformed data into the appropriate tables in Redshift.
 * Full_table_update( ): Optionally truncates and reloads tables to update data.
 
-**sql_queries.py**
+**sql_queries.py:**
 This file contains the SQL queries used in the ETL pipeline, such as:
 * Creating staging and fact tables (e.g., staging_events, songplays, etc.).
 * Inserting data into these tables using INSERT INTO queries.
 * Selecting and transforming data using SQL to prepare it for analysis.
 
-**dwh.cfg**
+**dwh.cfg:**
 This file contains the configuration for AWS and Redshift credentials:
 * AWS access keys to interact with S3.
 * Redshift connection details to load data into the database.
 
-**create_table.py**
+**create_table.py:**
 Fact and dimension tables are created here for star schema in Redshift.
 
-**data_quality_check.py** This script runs data quality checks to ensure the ETL process has correctly loaded data into the Redshift tables. It checks for record counts, non-null constraints, and consistency across the tables.
+**data_quality_check.py:** This script runs data quality checks to ensure the ETL process has correctly loaded data into the Redshift tables. It checks for record counts, non-null constraints, and consistency across the tables.
 
 ###### Key checks include:
 
@@ -103,7 +103,7 @@ Fact and dimension tables are created here for star schema in Redshift.
 ##### How to run:
 Run data_quality_check.py after executing the ETL process to ensure data quality.
 
-**validation_check.py** This script validates the transformed data after it has been loaded into Redshift. It checks the results of key business questions, such as:
+**validation_check.py:** This script validates the transformed data after it has been loaded into Redshift. It checks the results of key business questions, such as:
 Counting records in critical tables (users, songs, artists, etc.).
 ##### How to run:
 Run validation_check.py to validate that the ETL pipeline has correctly transformed and loaded data.
