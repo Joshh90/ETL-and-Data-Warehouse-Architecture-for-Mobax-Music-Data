@@ -1,5 +1,5 @@
 """
-This script is used to manage the database schema for the Sparkify data warehouse.
+This script is used to manage the database schema for the Sonofy data warehouse.
 It defines functions to drop existing tables and create new ones, ensuring the schema 
 is correctly set up for the ETL process.
 
